@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RP Forum — Test</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .container {
+      background: rgba(0,0,0,0.75);
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+    }
+    button {
+      background: #f0b400;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    .link {
+      text-align: center;
+      margin-top: 10px;
+      cursor: pointer;
+      color: #f0b400;
+    }
+    .hidden { display: none; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    table, th, td {
+      border: 1px solid #555;
+    }
+    th, td {
+      padding: 6px;
+      text-align: center;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body><div class="container" id="loginBox">
+  <h2>Вход на форум</h2>
+  <input id="loginName" placeholder="Имя игрока (Nick_Name)" />
+  <input id="loginPass" type="password" placeholder="Пароль" />
+  <button onclick="login()">Войти</button>
+  <div class="link" onclick="showRegister()">Регистрация</div>
+</div><div class="container hidden" id="registerBox">
+  <h2>Регистрация</h2>
+  <input id="regName" placeholder="Имя игрока" />
+  <input id="regPass" type="password" placeholder="Пароль" />
+  <select id="regQuestion">
+    <option>Как зовут вашего друга?</option>
+    <option>Название первой машины?</option>
+    <option>Любимый сервер RP?</option>
+  </select>
+  <input id="regAnswer" placeholder="Ответ" />
+  <button onclick="register()">Зарегистрироваться</button>
+  <div class="link" onclick="showLogin()">Назад</div>
+</div><div class="container hidden" id="adminBox">
+  <h2>Зарегистрированные игроки</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Игрок</th>
+        <th>Пароль</th>
+        <th>Вопрос</th>
+      </tr>
+    </thead>
+    <tbody id="usersTable"></tbody>
+  </table>
+  <button onclick="logout()">Выйти</button>
+</div><script>
+  function getUsers() {
+    return JSON.parse(localStorage.getItem('users') || '[]');
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+
+  function register() {
+    const name = regName.value.trim();
+    const pass = regPass.value.trim();
+    const question = regQuestion.value;
+    if (!name || !pass) {
+      alert('Заполните все поля');
+      return;
+    }
+    const users = getUsers();
+    users.push({ name, pass, question });
+    saveUsers(users);
+    alert('Регистрация успешна');
+    showLogin();
+  }
+
+  function login() {
+    const name = loginName.value.trim();
+    const pass = loginPass.value.trim();
+    const users = getUsers();
+    const ok = users.find(u => u.name === name && u.pass === pass);
+    if (!ok) {
+      alert('Неверные данные');
+      return;
+    }
+    showAdmin();
+  }
+
+  function showAdmin() {
+    loginBox.classList.add('hidden');
+    registerBox.classList.add('hidden');
+    adminBox.classList.remove('hidden');
+    const tbody = document.getElementById('usersTable');
+    tbody.innerHTML = '';
+    getUsers().forEach(u => {
+      tbody.innerHTML += `<tr><td>${u.name}</td><td>${u.pass}</td><td>${u.question}</td></tr>`;
+    });
+  }
+
+  function logout() {
+    showLogin();
+  }
+
+  function showRegister() {
+    loginBox.classList.add('hidden');
+    registerBox.classList.remove('hidden');
+  }
+
+  function showLogin() {
+    registerBox.classList.add('hidden');
+    adminBox.classList.add('hidden');
+    loginBox.classList.remove('hidden');
+  }
+</script></body>
+</html>
